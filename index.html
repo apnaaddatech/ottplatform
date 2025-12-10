@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTT PLATFORM - APNA ADDA</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --c-red: #D32F2F;
+            --c-black: #050505;
+            --c-dark-grey: #121212;
+            --c-light-grey: #1f1f1f;
+            --c-white: #FFFFFF;
+            --c-silver: #C0C0C0;
+            --c-golden: #FFD700;
+            --c-green: #2E7D32;
+            --c-blue: #1565C0;
+            --c-warning: #FF5722;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--c-black);
+            color: var(--c-white);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fadeIn 0.8s ease-out forwards; }
+        
+        @keyframes shine { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* --- Global Button Styles --- */
+        .shine-btn {
+            position: relative; z-index: 1; overflow: hidden; transition: 0.3s;
+            box-shadow: 0 0 5px rgba(211, 47, 47, 0.4);
+            font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .shine-btn::before {
+            content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, var(--c-red), var(--c-golden), var(--c-red), var(--c-blue));
+            background-size: 400%; z-index: -1; animation: shine 4s linear infinite;
+            border-radius: inherit; opacity: 0; transition: opacity 0.3s;
+        }
+        .shine-btn:hover::before { opacity: 1; }
+        .shine-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(211, 47, 47, 0.6); }
+
+        /* --- Header --- */
+        header {
+            background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(18,18,18,0.95) 100%);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            border-bottom: 2px solid var(--c-red); box-shadow: 0 2px 20px rgba(0,0,0,0.8);
+        }
+        .logo { font-size: 1.6rem; font-weight: 800; color: var(--c-white); text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px var(--c-red); }
+        .logo span { color: var(--c-red); }
+
+        nav button {
+            background: transparent; border: none; color: var(--c-silver); font-size: 1rem;
+            margin-left: 15px; cursor: pointer; transition: 0.3s; padding: 8px 12px; border-radius: 4px;
+        }
+        nav button:hover { color: var(--c-white); text-shadow: 0 0 5px var(--c-white); }
+        .btn-login { background-color: var(--c-blue); color: white; padding: 8px 20px; }
+        .btn-admin { color: var(--c-golden); border: 1px solid var(--c-golden); display: none; }
+        .btn-profile { background-color: #333; color: var(--c-golden); border: 1px solid var(--c-golden); padding: 8px 15px; display: none; }
+
+        /* --- Sections --- */
+        .section { display: none; padding-top: 80px; padding-bottom: 60px; flex-grow: 1; }
+        .section.active { display: block; }
+
+        /* --- Hero Section --- */
+        #home-page { padding-top: 0; }
+        .hero {
+            height: 100vh; position: relative; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center; overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; z-index: -1;
+            filter: brightness(0.25) blur(3px); transition: background-image 1.5s ease-in-out;
+        }
+        .hero-content {
+            z-index: 2; padding: 20px; background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(2px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .hero-subtitle { color: var(--c-golden); font-size: 1.2rem; letter-spacing: 3px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 2px 5px black; }
+        .hero h1 { font-size: 4rem; color: var(--c-white); text-shadow: 4px 4px 0px var(--c-red); margin-bottom: 15px; line-height: 1.1; }
+        .hero p { font-size: 1.3rem; color: var(--c-silver); max-width: 700px; margin: 0 auto 30px auto; }
+        .hero-btn { padding: 15px 40px; background-color: var(--c-red); color: white; border: none; font-size: 1.3rem; cursor: pointer; border-radius: 50px; }
+
+        /* --- Container & Titles --- */
+        .container { padding: 40px 20px; max-width: 1400px; margin: 0 auto; }
+        .main-title {
+            text-align: center; font-size: 2.5rem; color: var(--c-white); margin-bottom: 30px;
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+
+        /* --- Category & Tabs --- */
+        .category-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
+        .cat-btn { background: var(--c-light-grey); border: 1px solid #333; color: var(--c-silver); padding: 12px 25px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: all 0.3s; text-transform: uppercase; }
+        .cat-btn.active { background: var(--c-red); color: white; border-color: var(--c-red); box-shadow: 0 0 15px rgba(211, 47, 47, 0.4); transform: scale(1.05); }
+
+        .category-content { display: none; animation: fadeIn 0.5s ease; }
+        .category-content.active { display: block; }
+
+        .search-box { position: relative; max-width: 600px; margin: 0 auto 40px auto; width: 100%; }
+        .search-box input { width: 100%; padding: 15px 50px 15px 25px; background: var(--c-light-grey); border: 2px solid #333; border-radius: 50px; color: white; font-size: 1.1rem; outline: none; transition: 0.3s; }
+        .search-box input:focus { border-color: var(--c-red); box-shadow: 0 0 15px rgba(211,47,47,0.3); }
+        .search-box i { position: absolute; right: 25px; top: 50%; transform: translateY(-50%); color: var(--c-silver); pointer-events: none; }
+
+        .tabs-container { position: relative; display: flex; justify-content: center; border-bottom: 2px solid #333; margin-bottom: 40px; width: fit-content; margin-left: auto; margin-right: auto; }
+        .tab-btn { background: transparent; border: none; color: var(--c-silver); font-size: 1.2rem; font-weight: bold; padding: 15px 35px; cursor: pointer; position: relative; transition: color 0.3s; text-transform: uppercase; z-index: 2; }
+        .tab-btn.active { color: var(--c-white); text-shadow: 0 0 15px var(--c-red); }
+        .slider-line { position: absolute; bottom: -2px; left: 0; height: 4px; background-color: var(--c-red); box-shadow: 0 -4px 15px var(--c-red); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); width: 0; z-index: 3; border-radius: 2px; }
+        
+        .sub-tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .sub-tab-content.active { display: grid; }
+
+        /* --- VIDEO GRID --- */
+        .video-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 40px; }
+        .video-card { background-color: var(--c-light-grey); border-radius: 15px; overflow: hidden; border: 2px solid #333; transition: all 0.4s ease; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .video-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--c-red); box-shadow: 0 0 25px rgba(211, 47, 47, 0.5), inset 0 0 10px rgba(211,47,47,0.1); }
+        .thumbnail-container { position: relative; width: 100%; height: 210px; overflow: hidden; }
+        .thumbnail { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .video-card:hover .thumbnail { transform: scale(1.15); }
+        .play-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; cursor: pointer; backdrop-filter: blur(2px); }
+        .video-card:hover .play-overlay { opacity: 1; }
+        .play-overlay i { font-size: 4rem; color: var(--c-white); text-shadow: 0 0 20px var(--c-red); }
+        .card-body { padding: 20px; }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; color: var(--c-white); height: 50px; overflow: hidden; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .card-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        /* Updated Video Card Buttons */
+        .btn-card { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; font-weight: bold; }
+        .btn-watch { background-color: var(--c-red); flex-grow: 2; }
+        .btn-notes { background-color: var(--c-blue); }
+        .btn-check { background-color: #333; border: 1px solid #555; transition: 0.3s; }
+        .btn-check.completed { background-color: var(--c-green); border-color: var(--c-green); box-shadow: 0 0 10px var(--c-green); }
+
+        /* --- Admin Panel --- */
+        .admin-layout { display: flex; flex-direction: column; gap: 40px; }
+        .admin-nav-toggle { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .admin-tab-btn { padding: 10px 20px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .admin-tab-btn.active { background: var(--c-golden); color: black; font-weight: bold; }
+        .admin-section-content { display: none; }
+        .admin-section-content.active { display: block; }
+
+        .admin-form { background-color: var(--c-dark-grey); padding: 40px; border-radius: 15px; border: 1px solid var(--c-golden); max-width: 600px; margin: 0 auto; box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--c-silver); font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #444; background: var(--c-black); color: white; outline: none; transition: 0.3s; }
+        .form-group input:focus { border-color: var(--c-red); }
+
+        .admin-list-container { background-color: var(--c-dark-grey); padding: 30px; border-radius: 15px; border: 1px solid #333; }
+        .admin-video-item { display: flex; justify-content: space-between; align-items: center; background: var(--c-black); padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid var(--c-red); }
+        .admin-actions button { margin-left: 8px; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; color: white; }
+
+        /* --- Admin Support Chat --- */
+        .admin-chat-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; height: 600px; }
+        .user-list { background: #1a1a1a; overflow-y: auto; border-radius: 10px; border: 1px solid #333; }
+        .user-list-item { padding: 15px; border-bottom: 1px solid #333; cursor: pointer; transition: 0.2s; position: relative; }
+        .user-list-item:hover { background: #252525; }
+        .user-list-item.active { background: #333; border-left: 4px solid var(--c-golden); }
+        .user-list-name { font-weight: bold; color: white; display: block; }
+        .user-list-email { font-size: 0.8rem; color: #888; }
+        
+        .admin-chat-box { background: #151515; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .admin-chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .admin-chat-input { padding: 15px; background: #222; display: flex; gap: 10px; }
+        .admin-delete-chat { position: absolute; top: 10px; right: 10px; background: #D32F2F; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; z-index: 5; }
+
+        /* --- Footer --- */
+        footer { background-color: var(--c-black); border-top: 1px solid #333; padding: 30px; text-align: center; margin-top: auto; width: 100%; z-index: 10; }
+        footer p { color: var(--c-silver); font-size: 1.1rem; letter-spacing: 1px; }
+        footer a { color: var(--c-red); font-weight: bold; text-decoration: none; transition: 0.3s; cursor: pointer; }
+
+        /* --- Modals --- */
+        .video-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); }
+        .video-modal.show { display: flex; }
+        .video-wrapper { width: 85%; max-width: 1000px; aspect-ratio: 16/9; background: black; border: 2px solid var(--c-red); box-shadow: 0 0 30px rgba(211, 47, 47, 0.4); border-radius: 10px; overflow: hidden; }
+        .close-modal { margin-bottom: 15px; color: white; font-size: 2.5rem; cursor: pointer; align-self: flex-end; margin-right: 8%; }
+
+        /* --- Profile Modal --- */
+        .profile-wrapper { width: 90%; max-width: 650px; height: 85vh; background: var(--c-dark-grey); border: 2px solid var(--c-golden); border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .profile-header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); }
+        .profile-tabs-container { display: flex; justify-content: space-around; position: relative; background: rgba(0,0,0,0.5); border-bottom: 2px solid #333; }
+        .profile-tab { flex: 1; background: transparent; border: none; color: #777; padding: 15px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; z-index: 2; }
+        .profile-tab.active { color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .profile-slider { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--c-red); width: 50%; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -2px 10px var(--c-red); }
+        .profile-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .profile-tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .profile-tab-content.active { display: block; }
+        .profile-item { background: var(--c-black); padding: 10px; border-radius: 8px; display: flex; gap: 15px; border: 1px solid #333; margin-bottom: 15px; }
+        .prof-thumb { width: 90px; height: 55px; object-fit: cover; border-radius: 4px; }
+        .prof-info { flex: 1; }
+        .prof-title { color: white; font-weight: bold; font-size: 0.95rem; }
+
+        /* --- Support Widget --- */
+        .support-widget-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--c-golden); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: black; cursor: pointer; box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); z-index: 3000; transition: 0.3s; }
+        .support-widget-btn:hover { transform: scale(1.1); }
+        .support-tooltip { position: absolute; top: -40px; right: 0; background: white; color: black; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 0.8rem; white-space: nowrap; animation: fadeIn 0.5s; }
+        .support-tooltip::after { content: ''; position: absolute; bottom: -5px; right: 20px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid white; }
+        
+        .chat-red-dot { position: absolute; top: 0; right: 0; width: 15px; height: 15px; background: var(--c-red); border-radius: 50%; border: 2px solid black; display: none; }
+        .chat-red-dot.show { display: block; }
+
+        .support-chat-box { position: fixed; bottom: 100px; right: 30px; width: 350px; height: 450px; background: #121212; border: 2px solid var(--c-golden); border-radius: 15px; display: none; flex-direction: column; overflow: hidden; z-index: 3000; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .support-chat-box.open { display: flex; animation: pop 0.3s ease; }
+        .chat-header { background: var(--c-golden); padding: 15px; color: black; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #050505; }
+        .chat-input-area { padding: 10px; background: #1a1a1a; display: flex; gap: 10px; border-top: 1px solid #333; }
+        .chat-input { flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none; background: #333; color: white; }
+        .chat-send { background: var(--c-golden); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; color: black; display: flex; justify-content: center; align-items: center; }
+        
+        /* Message Bubbles */
+        .msg { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; line-height: 1.4; word-wrap: break-word; }
+        .msg.admin { background: #333; color: white; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
+        .msg.user { background: var(--c-blue); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .welcome-msg { color: var(--c-golden); text-align: center; font-size: 0.85rem; margin-bottom: 10px; font-style: italic; padding: 10px; border-bottom: 1px solid #333; }
+
+        /* Auth Styles */
+        .auth-container { background: linear-gradient(145deg, #151515, #000000); padding: 50px; border-radius: 20px; max-width: 450px; margin: 50px auto; border-top: 4px solid var(--c-red); }
+        .auth-tabs { display: flex; margin-bottom: 30px; border-bottom: 2px solid #333; }
+        .auth-tab { flex: 1; padding: 15px; cursor: pointer; color: var(--c-silver); font-weight: bold; }
+        .auth-tab.active { color: var(--c-red); border-bottom: 3px solid var(--c-red); background: rgba(211,47,47,0.05); }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; animation: fadeIn 0.5s; }
+
+        /* --- CUSTOM CONFIRMATION / ALERT MODAL --- */
+        .custom-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); z-index: 9999;
+            justify-content: center; align-items: center;
+        }
+        .custom-overlay.open { display: flex; }
+        
+        .custom-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            width: 90%; max-width: 420px; border-radius: 15px; padding: 30px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            transform: scale(0.8); opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .custom-overlay.open .custom-box { transform: scale(1); opacity: 1; }
+
+        /* Variations for Alert Box */
+        .custom-box.warning { border-top: 4px solid var(--c-red); }
+        .custom-box.info { border-top: 4px solid var(--c-blue); }
+        .custom-box.success { border-top: 4px solid var(--c-green); }
+
+        .custom-icon { font-size: 3.5rem; margin-bottom: 15px; }
+        .custom-box.warning .custom-icon { color: var(--c-red); }
+        .custom-box.info .custom-icon { color: var(--c-blue); }
+        .custom-box.success .custom-icon { color: var(--c-green); }
+
+        .custom-title { color: white; font-size: 1.5rem; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .custom-msg { color: #ccc; margin-bottom: 25px; font-size: 1rem; line-height: 1.5; }
+
+        .custom-btns { display: flex; gap: 15px; justify-content: center; }
+        .c-btn {
+            padding: 12px 30px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s;
+        }
+        .c-btn-ok { background: var(--c-red); color: white; box-shadow: 0 5px 15px rgba(211,47,47,0.3); }
+        .c-btn-ok:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(211,47,47,0.5); }
+        
+        .c-btn-cancel { background: transparent; border: 2px solid #444; color: #aaa; }
+        .c-btn-cancel:hover { border-color: white; color: white; }
+
+        @media(max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .tabs-container { overflow-x: auto; white-space: nowrap; justify-content: flex-start; width: 100%; }
+            .category-nav { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 10px; }
+            .support-chat-box { width: 90%; right: 5%; bottom: 100px; height: 60vh; }
+            .admin-chat-layout { grid-template-columns: 1fr; grid-template-rows: 150px 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">OTT <span>PLATFORM</span></div>
+        <nav>
+            <button onclick="router('home')"><i class="fas fa-home"></i> Home</button>
+            <button onclick="router('videos')"><i class="fas fa-video"></i> Videos</button>
+            <button id="nav-admin" class="btn-admin shine-btn" onclick="router('admin')"><i class="fas fa-lock"></i> Admin</button>
+            <button id="nav-login" class="btn-login shine-btn" onclick="router('login')">Login</button>
+            <button id="nav-profile" class="btn-profile shine-btn" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> Profile</button>
+        </nav>
+    </header>
+
+    <!-- Home Page -->
+    <section id="home-page" class="section">
+        <div class="hero">
+            <div class="hero-bg" id="hero-bg"></div>
+            <div class="hero-content animate-in">
+                <div class="hero-subtitle">BY APNA ADDA</div>
+                <h1>ASPIRANTS OTT PLATFORM</h1>
+                <p>Comprehensive video lectures and notes for JEE, NEET, 11th, 12th & AI.</p>
+                <button class="hero-btn shine-btn" onclick="scrollToCourses()">Start Learning Now</button>
+            </div>
+        </div>
+        <div class="container animate-in" id="courses-section">
+            <h2 class="main-title">COURSES</h2>
+            <div id="home-content-injector"></div>
+        </div>
+    </section>
+
+    <!-- Videos Page -->
+    <section id="videos-page" class="section">
+        <div class="container animate-in">
+            <h2 class="main-title">TOTAL COURSES</h2>
+            <div id="videos-content-injector"></div>
+        </div>
+    </section>
+
+    <!-- Admin Panel -->
+    <section id="admin-page" class="section">
+        <div class="container admin-layout animate-in">
+            <!-- Admin Toggle Nav -->
+            <div class="admin-nav-toggle">
+                <button class="admin-tab-btn active" onclick="switchAdminTab('upload', this)">Upload Content</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab('chat', this)">Support Chat</button>
+            </div>
+
+            <!-- Upload Section -->
+            <div id="admin-section-upload" class="admin-section-content active">
+                <div class="admin-form">
+                    <h2 style="color:var(--c-golden); text-align:center; margin-bottom:20px; text-transform: uppercase;">
+                        <i class="fas fa-cloud-upload-alt"></i> <span id="form-mode-title">Upload Content</span>
+                    </h2>
+                    <input type="hidden" id="edit-key">
+                    <div class="form-group">
+                        <label>Select Category</label>
+                        <select id="admin-category" onchange="updateAdminSubjects()">
+                            <option value="JEE">JEE</option>
+                            <option value="NEET">NEET</option>
+                            <option value="11th">11th</option>
+                            <option value="12th">12th</option>
+                            <option value="AI">AI</option>
+                            <option value="DEVELOPMENT">DEVELOPMENT</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Subject</label>
+                        <select id="admin-subject"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Video Title</label>
+                        <input type="text" id="admin-title" placeholder="Enter video title">
+                    </div>
+                    <div class="form-group">
+                        <label>YouTube Video Link</label>
+                        <input type="text" id="admin-link" placeholder="e.g. https://youtu.be/...">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes Link (Optional)</label>
+                        <input type="text" id="admin-notes" placeholder="e.g. Google Drive PDF Link">
+                    </div>
+                    <button id="btn-save" class="btn-submit shine-btn" style="width:100%; padding:15px; background:var(--c-golden); border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="saveVideo()">UPLOAD VIDEO</button>
+                    <button id="btn-cancel" style="width:100%; padding:10px; background:#444; border:none; border-radius:8px; color:white; margin-top:10px; display:none; cursor:pointer;" onclick="resetAdminForm()">Cancel Edit</button>
+                </div>
+                <div class="admin-list-container" style="margin-top:40px;">
+                    <h3 style="color:var(--c-silver); margin-bottom:20px; border-bottom:1px solid #444; padding-bottom:10px;">
+                        <i class="fas fa-tasks"></i> Manage Existing Videos
+                    </h3>
+                    <div id="admin-video-list"></div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="admin-section-chat" class="admin-section-content">
+                <div class="admin-chat-layout">
+                    <!-- User List -->
+                    <div class="user-list" id="admin-chat-users">
+                        <!-- Populated by JS -->
+                    </div>
+                    <!-- Chat Box -->
+                    <div class="admin-chat-box" id="admin-chat-box" style="display:none;">
+                        <button class="admin-delete-chat" onclick="deleteCurrentChat()">DELETE CHAT</button>
+                        <div class="chat-header" style="background:#222; color:var(--c-golden); font-size:0.9rem;">
+                            Chat with: <span id="admin-chat-target-name">User</span>
+                        </div>
+                        <div class="admin-chat-msgs" id="admin-chat-msgs"></div>
+                        <div class="admin-chat-input">
+                            <input type="text" id="admin-msg-input" class="chat-input" placeholder="Reply...">
+                            <button class="chat-send" onclick="sendAdminMessage()"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                    <div id="admin-chat-placeholder" style="display:flex; justify-content:center; align-items:center; color:#555;">
+                        Select a user to chat
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Page -->
+    <section id="about-page" class="section">
+        <div class="container animate-in">
+            <div style="background:var(--c-light-grey); padding:40px; border-radius:20px; border:1px solid #333; text-align:center;">
+                <h3 style="color:var(--c-golden); font-size:2rem; margin-bottom:20px;">About APNA ADDA</h3>
+                <p style="color:var(--c-silver); line-height:1.8;">APNA ADDA is a technology-driven company committed to building smart, simple, and useful digital solutions...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Page -->
+    <section id="login-page" class="section">
+        <div class="auth-container animate-in">
+            <h2 id="auth-title" style="color:white; margin-bottom:20px; text-align:center;">WELCOME BACK DEAR ♥️</h2>
+            <div class="auth-tabs">
+                <div class="auth-tab" id="tab-login" onclick="switchAuth('login')">LOGIN</div>
+                <div class="auth-tab active" id="tab-signup" onclick="switchAuth('signup')">SIGN UP</div>
+            </div>
+            <div id="form-login" class="auth-form">
+                <div class="form-group"><input type="email" id="login-email" placeholder="Email Address"></div>
+                <div class="form-group"><input type="password" id="login-password" placeholder="Password"></div>
+                <button class="shine-btn" style="width:100%; padding:12px; background:var(--c-blue); color:white; border:none; border-radius:5px;" onclick="handleLogin()">SECURE LOGIN</button>
+            </div>
+            <div id="form-signup" class="auth-form active">
+                <div class="form-group"><input type="email" id="signup-email" placeholder="Email Address"></div>
+                <div class="form-group"><input type="password" id="signup-password" placeholder="Create Password"></div>
+                <button class="shine-btn" style="width:100%; padding:12px; background:var(--c-red); color:white; border:none; border-radius:5px;" onclick="handleSignup()">CREATE ACCOUNT</button>
+            </div>
+            <p id="auth-error" style="color:var(--c-red); margin-top:10px; text-align:center;"></p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>THIS WEB IS POWERED BY <a href="#">APNA ADDA</a></p>
+    </footer>
+
+    <!-- Video Modal -->
+    <div class="video-modal" id="video-modal">
+        <div class="close-modal" onclick="closeModal()">&times;</div>
+        <div class="video-wrapper"><iframe id="video-frame" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe></div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="video-modal" id="profile-modal">
+        <div class="profile-wrapper">
+            <div class="profile-header">
+                <div class="user-email" id="profile-email"><i class="fas fa-user-circle"></i> User</div>
+                <i class="fas fa-times" style="font-size:1.5rem; cursor:pointer;" onclick="closeProfileModal()"></i>
+            </div>
+            
+            <div class="profile-tabs-container">
+                <button class="profile-tab active" onclick="switchProfileTab('completed', this)">MARKED COMPLETE</button>
+                <button class="profile-tab" onclick="switchProfileTab('history', this)">HISTORY</button>
+                <div class="profile-slider" id="profile-slider"></div>
+            </div>
+
+            <div class="profile-content">
+                <div id="prof-content-completed" class="profile-tab-content active">
+                    <div id="completed-container"></div>
+                </div>
+                <div id="prof-content-history" class="profile-tab-content">
+                    <div id="history-container"></div>
+                </div>
+            </div>
+
+            <div style="padding:20px; border-top:1px solid #333; text-align:center; background:rgba(0,0,0,0.5);">
+                <button style="color:var(--c-red); border:1px solid var(--c-red); background:transparent; padding:10px 20px; border-radius:5px; cursor:pointer;" onclick="handleLogout()">LOGOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Widget (User) -->
+    <div id="support-widget-container">
+        <div class="support-widget-btn" onclick="toggleSupportChat()">
+            <i class="fas fa-headset"></i>
+            <div class="support-tooltip">WE ARE HERE !</div>
+            <div class="chat-red-dot" id="user-chat-dot"></div>
+        </div>
+        
+        <div class="support-chat-box" id="support-chat-box">
+            <div class="chat-header">
+                <span><i class="fas fa-robot"></i> SUPPORT</span>
+                <i class="fas fa-times" style="cursor:pointer;" onclick="toggleSupportChat()"></i>
+            </div>
+            <div class="chat-messages" id="user-chat-msgs">
+                <div class="welcome-msg">
+                    WELCOME IN OTT PLATFORM BY APNA ADDA. HOW CAN WE HELP YOU TODAY? TELL US WHAT YOU WANT?
+                </div>
+                <!-- Msgs injected here -->
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="user-chat-input" class="chat-input" placeholder="Type a message...">
+                <button class="chat-send" onclick="sendUserMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRMATION MODAL -->
+    <div id="custom-ui" class="custom-overlay">
+        <div id="custom-box" class="custom-box">
+            <div id="custom-icon" class="custom-icon"></div>
+            <div id="custom-title" class="custom-title"></div>
+            <div id="custom-msg" class="custom-msg"></div>
+            <div class="custom-btns" id="custom-btns"></div>
+        </div>
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getDatabase, ref, push, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaY6wBjg4ooOqg841Dr5Nd2bZmlDIzJYU",
+            authDomain: "namaste-2bfcc.firebaseapp.com",
+            databaseURL: "https://namaste-2bfcc-default-rtdb.firebaseio.com",
+            projectId: "namaste-2bfcc",
+            storageBucket: "namaste-2bfcc.firebasestorage.app",
+            messagingSenderId: "721784358614",
+            appId: "1:721784358614:web:686a564d8e965694296b77"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+        let allVideosData = [];
+        let completedVideos = new Set();
+        let historyData = [];
+        let currentChatUser = null; 
+        let hasMessagedBefore = false;
+
+        /* --- CUSTOM ALERT / CONFIRM SYSTEM --- */
+        const uiOverlay = document.getElementById('custom-ui');
+        const uiBox = document.getElementById('custom-box');
+        const uiTitle = document.getElementById('custom-title');
+        const uiMsg = document.getElementById('custom-msg');
+        const uiBtns = document.getElementById('custom-btns');
+        const uiIcon = document.getElementById('custom-icon');
+
+        window.showCustomConfirm = (title, msg, type, callback) => {
+            setupCustomUI(title, msg, type);
+            const btnYes = document.createElement('button');
+            btnYes.className = 'c-btn c-btn-ok';
+            btnYes.innerText = 'YES, PROCEED';
+            btnYes.onclick = () => { closeCustomUI(); callback(); };
+            const btnNo = document.createElement('button');
+            btnNo.className = 'c-btn c-btn-cancel';
+            btnNo.innerText = 'CANCEL';
+            btnNo.onclick = () => closeCustomUI();
+            uiBtns.appendChild(btnNo);
+            uiBtns.appendChild(btnYes);
+            uiOverlay.classList.add('open');
+        };
+
+        window.showCustomAlert = (title, msg, type) => {
+            setupCustomUI(title, msg, type);
+            const btnOk = document.createElement('button');
+            btnOk.className = 'c-btn c-btn-ok';
+            btnOk.innerText = 'OKAY';
+            btnOk.onclick = () => closeCustomUI();
+            uiBtns.appendChild(btnOk);
+            uiOverlay.classList.add('open');
+        };
+
+        function setupCustomUI(title, msg, type) {
+            uiTitle.innerText = title;
+            uiMsg.innerText = msg;
+            uiBtns.innerHTML = '';
+            uiBox.className = 'custom-box ' + type;
+            let iconClass = 'fa-info-circle';
+            if(type === 'warning') iconClass = 'fa-exclamation-triangle';
+            if(type === 'success') iconClass = 'fa-check-circle';
+            uiIcon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+        }
+        function closeCustomUI() { uiOverlay.classList.remove('open'); }
+
+        /* --- CONFIG & HELPERS --- */
+        const catConfig = {
+            'JEE': ['All', 'Mathematics', 'Physics', 'Chemistry'],
+            'NEET': ['All', 'Mathematics', 'Physics', 'Biology'],
+            '11th': ['All', 'Physics', 'Chemistry', 'Maths', 'English', 'Biology'],
+            '12th': ['All', 'Physics', 'Chemistry', 'Maths', 'English', 'Biology'],
+            'AI': [], 'DEVELOPMENT': [] 
+        };
+
+        window.scrollToCourses = () => document.getElementById('courses-section').scrollIntoView({ behavior: 'smooth' });
+
+        /* --- AUTH STATE --- */
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const navLogin = document.getElementById('nav-login');
+            const navProfile = document.getElementById('nav-profile');
+            const navAdmin = document.getElementById('nav-admin');
+
+            if (user) {
+                navLogin.style.display = 'none';
+                navProfile.style.display = 'inline-block';
+                navAdmin.style.display = (user.email === 'thepremanshu@gmail.com') ? 'inline-block' : 'none';
+                onValue(ref(db, `users/${user.uid}/completed`), (snapshot) => {
+                    completedVideos.clear();
+                    const data = snapshot.val();
+                    if(data) Object.keys(data).forEach(k => completedVideos.add(k));
+                    renderAllCards();
+                });
+                onValue(ref(db, `users/${user.uid}/history`), (snapshot) => {
+                    historyData = [];
+                    const data = snapshot.val();
+                    if(data) Object.keys(data).forEach(key => historyData.push({ key: key, timestamp: data[key].timestamp }));
+                    historyData.sort((a,b) => b.timestamp - a.timestamp);
+                });
+                initUserSupport(user);
+                if(user.email === 'thepremanshu@gmail.com') initAdminSupport();
+
+            } else {
+                navLogin.style.display = 'inline-block';
+                navProfile.style.display = 'none';
+                navAdmin.style.display = 'none';
+                completedVideos.clear();
+                renderAllCards();
+                document.getElementById('support-chat-box').classList.remove('open');
+            }
+        });
+
+        /* --- RENDERING CARDS --- */
+        const videosRef = ref(db, 'videos');
+        onValue(videosRef, (snapshot) => {
+            const data = snapshot.val();
+            allVideosData = [];
+            document.getElementById('admin-video-list').innerHTML = "";
+            if (data) {
+                Object.keys(data).forEach(key => allVideosData.push({ key: key, ...data[key] }));
+                allVideosData.reverse();
+                allVideosData.forEach(vid => {
+                    document.getElementById('admin-video-list').innerHTML += `<div class="admin-video-item"><div style="flex:1;"><span style="color:var(--c-golden); font-size:0.8rem;">${vid.category||'N/A'}>${vid.subject}</span><br><b>${vid.title}</b></div><div class="admin-actions"><button style="background:var(--c-blue)" onclick="editVideo('${vid.key}')"><i class="fas fa-edit"></i></button><button style="background:var(--c-red)" onclick="deleteVideo('${vid.key}')"><i class="fas fa-trash"></i></button></div></div>`;
+                });
+                renderAllCards();
+                initSlideshow();
+            }
+        });
+
+        function renderAllCards() {
+            ['home', 'videos'].forEach(ctx => {
+                Object.keys(catConfig).forEach(cat => {
+                    const subs = catConfig[cat];
+                    if(subs.length>0) subs.forEach(s => { const el=document.getElementById(`grid-${ctx}-${cat}-${s}`); if(el) el.innerHTML="" });
+                    else { const el=document.getElementById(`grid-${ctx}-${cat}-All`); if(el) el.innerHTML="" }
+                });
+            });
+            allVideosData.forEach(vid => {
+                const category = vid.category || "JEE";
+                let subs = ['All'];
+                if (vid.subject && vid.subject!==category) subs.push(vid.subject);
+                if(catConfig[category].length===0) subs=['All'];
+                ['home', 'videos'].forEach(ctx => {
+                    subs.forEach(sub => {
+                        const grid = document.getElementById(`grid-${ctx}-${category}-${sub}`);
+                        if(grid) {
+                            if(ctx==='home' && grid.children.length>=4) return;
+                            grid.innerHTML += createCard(vid);
+                        }
+                    });
+                });
+            });
+        }
+
+        function createCard(vid) {
+            const isComp = completedVideos.has(vid.key);
+            const notes = vid.notesUrl ? vid.notesUrl.replace(/'/g, "&apos;") : "";
+            // ICONS ADDED
+            return `
+            <div class="video-card">
+                <div class="thumbnail-container">
+                    <img src="${vid.thumbnail}" class="thumbnail">
+                    <div class="play-overlay" onclick="attemptWatch('${vid.videoId}','${vid.key}')"><i class="fas fa-play-circle"></i></div>
+                </div>
+                <div class="card-body">
+                    <div class="card-title">${vid.title}</div>
+                    <div class="card-actions">
+                        <button class="btn-card btn-watch shine-btn" onclick="attemptWatch('${vid.videoId}','${vid.key}')"><i class="fas fa-play"></i> Watch</button>
+                        <button class="btn-card btn-notes shine-btn" onclick="attemptNotes('${notes}')"><i class="fas fa-file-pdf"></i> Notes</button>
+                        <button class="btn-card btn-check ${isComp?'completed':''}" onclick="toggleComplete('${vid.key}')"><i class="fas fa-check-circle"></i> ${isComp?'Done':'Mark'}</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        /* --- INTERACTIONS --- */
+        window.toggleComplete = (key) => {
+            if(!currentUser) return window.showCustomAlert("Authentication", "Please login to track progress.", "info");
+            const refPath = `users/${currentUser.uid}/completed/${key}`;
+            if(completedVideos.has(key)) remove(ref(db, refPath));
+            else set(ref(db, refPath), true);
+        };
+        window.attemptWatch = (vidId, key) => {
+            if(!currentUser) return window.showCustomAlert("Authentication", "Please login to watch videos.", "info");
+            set(ref(db, `users/${currentUser.uid}/history/${key}`), {timestamp: Date.now()});
+            document.getElementById('video-frame').src=`https://www.youtube.com/embed/${vidId}?autoplay=1`;
+            document.getElementById('video-modal').classList.add('show');
+        };
+        window.attemptNotes = (url) => { 
+            if(!currentUser) return window.showCustomAlert("Authentication", "Please login to view notes.", "info"); 
+            if(url) window.open(url,'_blank'); else window.showCustomAlert("Unavailable", "No notes available for this lecture.", "warning"); 
+        };
+        window.deleteVideo = (key) => { 
+            window.showCustomConfirm("Delete Video", "Are you sure? This cannot be undone.", "warning", () => {
+                remove(ref(db, 'videos/' + key));
+            });
+        };
+        window.handleLogout = () => {
+            window.showCustomConfirm("Logout", "Are you sure you want to log out?", "warning", () => {
+                signOut(auth).then(() => { closeProfileModal(); router('home'); }).catch(e => alert(e.message));
+            });
+        };
+
+        /* --- SUPPORT WIDGET (UPDATED REPLY LOGIC) --- */
+        window.toggleSupportChat = () => {
+            // AUTH CHECK for Widget
+            if (!currentUser) {
+                window.showCustomAlert("Authentication Required", "Please login to chat with our support team.", "info");
+                return;
+            }
+            const box = document.getElementById('support-chat-box');
+            box.classList.toggle('open');
+            if(box.classList.contains('open')) {
+                document.getElementById('user-chat-dot').classList.remove('show');
+                const container = document.getElementById('user-chat-msgs');
+                container.scrollTop = container.scrollHeight;
+            }
+        };
+
+        function initUserSupport(user) {
+            if(!user) return;
+            const chatRef = ref(db, `chats/${user.uid}/messages`);
+            onValue(chatRef, (snapshot) => {
+                const msgs = snapshot.val();
+                const container = document.getElementById('user-chat-msgs');
+                container.innerHTML = `<div class="welcome-msg">WELCOME IN OTT PLATFORM BY APNA ADDA. HOW CAN WE HELP YOU TODAY? TELL US WHAT YOU WANT?</div>`;
+                
+                if (!msgs) {
+                    hasMessagedBefore = false; // Chat is empty (new or deleted)
+                } else {
+                    hasMessagedBefore = true;
+                    Object.values(msgs).forEach(m => {
+                        container.innerHTML += `<div class="msg ${m.sender}">${m.text}</div>`;
+                    });
+                    container.scrollTop = container.scrollHeight;
+                    const keys = Object.keys(msgs);
+                    const lastMsg = msgs[keys[keys.length-1]];
+                    if(lastMsg.sender === 'admin' && !document.getElementById('support-chat-box').classList.contains('open')) {
+                        document.getElementById('user-chat-dot').classList.add('show');
+                    }
+                }
+            });
+        }
+
+        window.sendUserMessage = () => {
+            const input = document.getElementById('user-chat-input');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            // CAPTURE FLAG BEFORE PUSH
+            const isFirstMessage = !hasMessagedBefore;
+
+            const chatRef = ref(db, `chats/${currentUser.uid}`);
+            const msgsRef = ref(db, `chats/${currentUser.uid}/messages`);
+            
+            push(msgsRef, { sender: 'user', text: text, timestamp: Date.now() });
+            update(chatRef, { userEmail: currentUser.email, lastMessageTime: Date.now(), hasUnread: true });
+
+            // AUTO REPLY LOGIC (Exact String Requested)
+            if (isFirstMessage) {
+                setTimeout(() => {
+                    push(msgsRef, { sender: 'admin', text: "OUR TEAM MEMBER WILL SHORTLY ASSISTS YOU! ♥️", timestamp: Date.now() });
+                }, 800);
+            }
+            input.value = "";
+        };
+
+        /* --- ADMIN CHAT --- */
+        function initAdminSupport() {
+            const allChatsRef = ref(db, 'chats');
+            onValue(allChatsRef, (snapshot) => {
+                const chats = snapshot.val();
+                const list = document.getElementById('admin-chat-users');
+                list.innerHTML = "";
+                if(chats) {
+                    Object.keys(chats).forEach(uid => {
+                        const data = chats[uid];
+                        if(data.messages) {
+                            const email = data.userEmail || "Unknown";
+                            const isActive = currentChatUser === uid ? 'active' : '';
+                            list.innerHTML += `<div class="user-list-item ${isActive}" onclick="openAdminChat('${uid}', '${email}')"><span class="user-list-name">${email.split('@')[0]}</span><span class="user-list-email">${email}</span></div>`;
+                        }
+                    });
+                } else { list.innerHTML = "<div style='padding:20px; color:#666;'>No active chats</div>"; }
+            });
+        }
+        window.openAdminChat = (uid, email) => {
+            currentChatUser = uid;
+            document.getElementById('admin-chat-placeholder').style.display = 'none';
+            document.getElementById('admin-chat-box').style.display = 'flex';
+            document.getElementById('admin-chat-target-name').innerText = email;
+            initAdminSupport();
+            const msgsRef = ref(db, `chats/${uid}/messages`);
+            onValue(msgsRef, (snapshot) => {
+                const msgs = snapshot.val();
+                const container = document.getElementById('admin-chat-msgs');
+                container.innerHTML = "";
+                if(msgs) {
+                    Object.values(msgs).forEach(m => {
+                        const align = m.sender === 'admin' ? 'align-self: flex-end; background:var(--c-blue);' : 'align-self: flex-start; background:#333;';
+                        container.innerHTML += `<div class="msg" style="${align} color:white; border-radius:10px; padding:8px 12px;">${m.text}</div>`;
+                    });
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
+        };
+        window.sendAdminMessage = () => {
+            if(!currentChatUser) return;
+            const input = document.getElementById('admin-msg-input');
+            const text = input.value.trim();
+            if(!text) return;
+            push(ref(db, `chats/${currentChatUser}/messages`), { sender: 'admin', text: text, timestamp: Date.now() });
+            input.value = "";
+        };
+        window.deleteCurrentChat = () => {
+            if(!currentChatUser) return;
+            window.showCustomConfirm("Delete Chat", "Permanently delete this conversation?", "warning", () => {
+                remove(ref(db, `chats/${currentChatUser}`));
+                document.getElementById('admin-chat-box').style.display = 'none';
+                document.getElementById('admin-chat-placeholder').style.display = 'flex';
+                currentChatUser = null;
+            });
+        };
+
+        /* --- Standard JS Logic --- */
+        function generatePageStructure(context) {
+            const container = document.getElementById(`${context}-content-injector`);
+            if(!container) return;
+            container.innerHTML = "";
+            let navHtml = `<div class="category-nav">`;
+            Object.keys(catConfig).forEach((cat, index) => {
+                navHtml += `<button class="cat-btn ${index===0?'active':''}" onclick="switchMasterCategory('${context}', '${cat}', this)">${cat}</button>`;
+            });
+            navHtml += `</div>`;
+            container.innerHTML += navHtml;
+            Object.keys(catConfig).forEach((cat, index) => {
+                const subTabs = catConfig[cat];
+                let sectionHtml = `<div id="${context}-cat-${cat}" class="category-content ${index===0?'active':''}">`;
+                sectionHtml += `<div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search in ${cat}..." onkeyup="handleSearch(this.value, '${context}', '${cat}')"></div>`;
+                if (subTabs.length > 0) {
+                    sectionHtml += `<div class="tabs-container" id="${context}-${cat}-tabs">`;
+                    subTabs.forEach((sub, sIdx) => {
+                        sectionHtml += `<button class="tab-btn ${sIdx===0?'active':''}" onclick="switchSubTab('${context}', '${cat}', '${sub}', this)">${sub}</button>`;
+                    });
+                    sectionHtml += `<div class="slider-line" id="${context}-${cat}-slider"></div></div>`;
+                    subTabs.forEach((sub, sIdx) => {
+                        sectionHtml += `<div id="grid-${context}-${cat}-${sub}" class="video-grid sub-tab-content ${sIdx===0?'active':''}"></div>`;
+                    });
+                } else {
+                    sectionHtml += `<div id="grid-${context}-${cat}-All" class="video-grid sub-tab-content active"></div>`;
+                }
+                sectionHtml += `</div>`;
+                container.innerHTML += sectionHtml;
+            });
+        }
+        window.switchMasterCategory = (context, cat, btn) => {
+            btn.parentElement.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`${context}-content-injector`).querySelectorAll('.category-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${context}-cat-${cat}`).classList.add('active');
+            setTimeout(() => initSlider(context, cat), 50);
+        };
+        window.switchSubTab = (context, cat, sub, btn) => {
+            const tabContainer = document.getElementById(`${context}-${cat}-tabs`);
+            const slider = document.getElementById(`${context}-${cat}-slider`);
+            tabContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (slider) { slider.style.width = `${btn.offsetWidth}px`; slider.style.left = `${btn.offsetLeft}px`; }
+            document.getElementById(`${context}-cat-${cat}`).querySelectorAll('.sub-tab-content').forEach(g => g.classList.remove('active'));
+            document.getElementById(`grid-${context}-${cat}-${sub}`).classList.add('active');
+        };
+        function initSlider(context, cat) {
+            const container = document.getElementById(`${context}-${cat}-tabs`);
+            if (!container) return;
+            const btn = container.querySelector('.tab-btn.active');
+            const slider = document.getElementById(`${context}-${cat}-slider`);
+            if (btn && slider) { slider.style.width = `${btn.offsetWidth}px`; slider.style.left = `${btn.offsetLeft}px`; }
+        }
+        window.updateAdminSubjects = () => {
+            const cat = document.getElementById('admin-category').value;
+            const subSelect = document.getElementById('admin-subject');
+            subSelect.innerHTML = "";
+            let options = catConfig[cat];
+            if (options.length > 0) options = options.filter(o => o !== 'All');
+            if (options.length === 0) options = [cat]; 
+            options.forEach(opt => { const el = document.createElement('option'); el.value = opt; el.innerText = opt; subSelect.appendChild(el); });
+        };
+        function getYouTubeID(url) {
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+        window.saveVideo = () => {
+            if(!currentUser || currentUser.email !== 'thepremanshu@gmail.com') return;
+            const category = document.getElementById('admin-category').value;
+            const subject = document.getElementById('admin-subject').value;
+            const title = document.getElementById('admin-title').value;
+            const link = document.getElementById('admin-link').value;
+            const notes = document.getElementById('admin-notes').value;
+            const editKey = document.getElementById('edit-key').value;
+            if(!title || !link) { window.showCustomAlert("Error", "Missing Fields", "warning"); return; }
+            const videoId = getYouTubeID(link);
+            if(!videoId) { window.showCustomAlert("Error", "Invalid YouTube Link", "warning"); return; }
+            const videoData = { category, subject, title, videoId, thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`, notesUrl: notes || "", timestamp: Date.now() };
+            const refPath = editKey ? `videos/${editKey}` : 'videos';
+            const dbAction = editKey ? update(ref(db, refPath), videoData) : push(ref(db, refPath), videoData);
+            dbAction.then(() => { window.showCustomAlert("Success", "Video Saved!", "success"); resetAdminForm(); });
+        };
+        window.resetAdminForm = () => {
+            document.getElementById('edit-key').value = ""; document.getElementById('admin-category').value = "JEE"; updateAdminSubjects();
+            document.getElementById('admin-title').value = ""; document.getElementById('admin-link').value = ""; document.getElementById('admin-notes').value = "";
+            document.getElementById('form-mode-title').innerText = "Upload Content"; document.getElementById('btn-save').innerText = "UPLOAD VIDEO"; document.getElementById('btn-cancel').style.display = "none";
+        };
+        window.editVideo = (key) => {
+            const vid = allVideosData.find(v => v.key === key);
+            if (!vid) return;
+            document.getElementById('admin-category').value = vid.category || "JEE"; updateAdminSubjects();
+            document.getElementById('edit-key').value = key; document.getElementById('admin-subject').value = vid.subject || "Physics";
+            document.getElementById('admin-title').value = vid.title; document.getElementById('admin-link').value = `https://youtu.be/${vid.videoId}`;
+            document.getElementById('admin-notes').value = vid.notesUrl; document.getElementById('form-mode-title').innerText = "Edit Video";
+            document.getElementById('btn-save').innerText = "UPDATE VIDEO"; document.getElementById('btn-cancel').style.display = "block"; window.scrollTo(0,0);
+        };
+        window.handleSearch = (q, c, cat) => {
+            const cards = document.getElementById(`${c}-cat-${cat}`).getElementsByClassName('video-card');
+            Array.from(cards).forEach(card => card.style.display = card.querySelector('.card-title').innerText.toLowerCase().includes(q.toLowerCase())?"":"none");
+        };
+        window.closeModal = () => { document.getElementById('video-frame').src=""; document.getElementById('video-modal').classList.remove('show'); };
+        window.switchProfileTab = (tabName, btn) => {
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`prof-content-${tabName}`).classList.add('active');
+            const slider = document.getElementById('profile-slider');
+            slider.style.width = `${btn.offsetWidth}px`; slider.style.left = `${btn.offsetLeft}px`;
+            if(tabName === 'completed') renderCompleted(); if(tabName === 'history') renderHistory();
+        };
+        window.openProfileModal = () => {
+            document.getElementById('profile-email').innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.email}`;
+            document.getElementById('profile-modal').classList.add('show');
+            setTimeout(() => { const activeBtn = document.querySelector('.profile-tab.active'); if(activeBtn) switchProfileTab('completed', activeBtn); }, 50);
+        };
+        window.closeProfileModal = () => document.getElementById('profile-modal').classList.remove('show');
+        function renderCompleted() {
+            const container = document.getElementById('completed-container'); container.innerHTML = "";
+            const list = allVideosData.filter(v => completedVideos.has(v.key));
+            if(list.length === 0) container.innerHTML = `<p style="color:#666; font-style:italic;">No completed videos.</p>`;
+            list.forEach(v => { container.innerHTML += `<div class="profile-item"><img src="${v.thumbnail}" class="prof-thumb"><div class="prof-info"><div class="prof-title">${v.title}</div><small style="color:#aaa;">${v.category} > ${v.subject}</small></div></div>`; });
+        }
+        function renderHistory() {
+            const container = document.getElementById('history-container'); container.innerHTML = "";
+            if(historyData.length === 0) container.innerHTML = `<p style="color:#666; font-style:italic;">No watch history.</p>`;
+            historyData.forEach(h => {
+                const v = allVideosData.find(x => x.key === h.key);
+                if(v) container.innerHTML += `<div class="profile-item"><img src="${v.thumbnail}" class="prof-thumb"><div class="prof-info"><div class="prof-title">${v.title}</div><small style="color:#aaa;">${new Date(h.timestamp).toLocaleDateString()}</small></div></div>`;
+            });
+        }
+        window.switchAdminTab = (tab, btn) => {
+            document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.admin-section-content').forEach(s => s.classList.remove('active'));
+            btn.classList.add('active'); document.getElementById(`admin-section-${tab}`).classList.add('active');
+        };
+        window.switchAuth = (m) => {
+            document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+            document.getElementById(`tab-${m}`).classList.add('active'); document.getElementById(`form-${m}`).classList.add('active');
+            document.getElementById('auth-title').innerText = m === 'login' ? "WELCOME DEAR ♥️" : "WELCOME BACK DEAR ♥️";
+        };
+        window.handleLogin = () => signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value).then(()=>router('home')).catch(e=>window.showCustomAlert("Error", e.message, "warning"));
+        window.handleSignup = () => createUserWithEmailAndPassword(auth, document.getElementById('signup-email').value, document.getElementById('signup-password').value).then(()=>router('home')).catch(e=>window.showCustomAlert("Error", e.message, "warning"));
+        window.router = (p) => {
+            document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(`${p}-page`).classList.add('active'); window.scrollTo(0,0);
+        };
+        let slideIndex=0; function initSlideshow(){ if(allVideosData.length>0) setInterval(()=>{ document.getElementById('hero-bg').style.backgroundImage=`url('${allVideosData[slideIndex=(slideIndex+1)%allVideosData.length].thumbnail}')`},3500); }
+        generatePageStructure('home'); generatePageStructure('videos'); updateAdminSubjects(); router('home');
+    </script>
+</body>
+</html>
