@@ -651,10 +651,13 @@
                 });
                 renderAllCards();
                 initSlideshow();
+            } else {
+                renderAllCards(); // To trigger the empty states even if no data at all
             }
         });
 
         function renderAllCards() {
+            // 1. Clear all grids
             ['home', 'videos'].forEach(ctx => {
                 Object.keys(catConfig).forEach(cat => {
                     const subs = catConfig[cat];
@@ -662,19 +665,46 @@
                     else { const el=document.getElementById(`grid-${ctx}-${cat}-All`); if(el) el.innerHTML="" }
                 });
             });
+
+            // 2. Add Cards
             allVideosData.forEach(vid => {
                 const category = vid.category || "JEE";
                 let subs = ['All'];
                 if (vid.subject && vid.subject!==category) subs.push(vid.subject);
                 if(catConfig[category].length===0) subs=['All'];
+
                 ['home', 'videos'].forEach(ctx => {
                     subs.forEach(sub => {
                         const grid = document.getElementById(`grid-${ctx}-${category}-${sub}`);
                         if(grid) {
-                            if(ctx==='home' && grid.children.length>=4) return;
+                            // NO LIMIT APPLIED HERE
                             grid.innerHTML += createCard(vid);
                         }
                     });
+                });
+            });
+
+            // 3. Check for Empty Grids and add Message
+            ['home', 'videos'].forEach(ctx => {
+                Object.keys(catConfig).forEach(cat => {
+                    const subs = catConfig[cat];
+                    const checkAndFill = (subName) => {
+                        const grid = document.getElementById(`grid-${ctx}-${cat}-${subName}`);
+                        if(grid && grid.children.length === 0) {
+                            grid.innerHTML = `
+                                <div style="grid-column: 1 / -1; text-align: center; color: var(--c-silver); padding: 40px; border: 1px dashed #333; border-radius: 10px;">
+                                    <i class="fas fa-video-slash" style="font-size: 3rem; margin-bottom: 15px; color: #333;"></i><br>
+                                    <h3 style="font-size: 1.2rem; color: #555;">NO VIDEOS AVAILABLE YET</h3>
+                                    <p style="font-size: 0.9rem; margin-top: 5px; color: #444;">CHECK BACK SOON!</p>
+                                </div>`;
+                        }
+                    };
+
+                    if(subs.length > 0) {
+                        subs.forEach(s => checkAndFill(s));
+                    } else {
+                        checkAndFill('All');
+                    }
                 });
             });
         }
@@ -1005,4 +1035,4 @@
         generatePageStructure('home'); generatePageStructure('videos'); updateAdminSubjects(); router('home');
     </script>
 </body>
-                    </html>
+</html>
