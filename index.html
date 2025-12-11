@@ -268,8 +268,28 @@
         .form-group label { display: block; margin-bottom: 8px; color: var(--c-silver); font-weight: bold; }
         .form-group input, .form-group select { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #444; background: var(--c-black); color: white; outline: none; transition: 0.3s; }
         .form-group input:focus { border-color: var(--c-red); }
+        
+        /* New Admin Preview Style */
+        .admin-preview-box { margin-top: 10px; display: none; justify-content: center; }
+        .admin-preview-box.show { display: flex; }
+        .preview-img { width: 100%; max-width: 250px; border-radius: 8px; border: 2px solid var(--c-golden); }
+
         .admin-list-container { background-color: var(--c-dark-grey); padding: 30px; border-radius: 15px; border: 1px solid #333; }
-        .admin-video-item { display: flex; justify-content: space-between; align-items: center; background: var(--c-black); padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid var(--c-red); }
+        
+        /* IMPROVED ADMIN LIST STYLES (Collapsible) */
+        .admin-group-details { margin-bottom: 15px; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .admin-group-details[open] { border-color: var(--c-golden); }
+        .admin-group-summary {
+            background: #222; color: var(--c-golden); padding: 15px; font-weight: bold; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center; list-style: none;
+        }
+        .admin-group-summary:hover { background: #2a2a2a; }
+        .admin-group-summary::after { content: '\f078'; font-family: 'Font Awesome 6 Free'; font-weight: 900; transition: 0.3s; }
+        .admin-group-details[open] .admin-group-summary::after { transform: rotate(180deg); }
+        .admin-cat-list { padding: 10px; background: black; }
+
+        .admin-video-item { display: flex; justify-content: space-between; align-items: center; background: #151515; padding: 15px; margin-bottom: 8px; border-radius: 6px; border-left: 3px solid #555; }
+        .admin-video-item:hover { background: #1f1f1f; }
         .admin-actions button { margin-left: 8px; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; color: white; }
 
         .admin-chat-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; height: 600px; }
@@ -460,6 +480,10 @@
                     <div class="form-group">
                         <label>YouTube Video Link</label>
                         <input type="text" id="admin-link" placeholder="e.g. https://youtu.be/... or /live/...">
+                        <!-- IMPROVED: LIVE PREVIEW CONTAINER -->
+                        <div class="admin-preview-box" id="admin-preview-box">
+                            <img src="" id="admin-preview-img" class="preview-img" alt="Video Preview">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Notes Link (Optional)</label>
@@ -468,11 +492,15 @@
                     <button id="btn-save" class="btn-submit shine-btn" style="width:100%; padding:15px; background:var(--c-golden); border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="saveVideo()">UPLOAD VIDEO</button>
                     <button id="btn-cancel" style="width:100%; padding:10px; background:#444; border:none; border-radius:8px; color:white; margin-top:10px; display:none; cursor:pointer;" onclick="resetAdminForm()">Cancel Edit</button>
                 </div>
+                
+                <!-- IMPROVED: SECTION WISE VIDEO MANAGEMENT -->
                 <div class="admin-list-container" style="margin-top:40px;">
                     <h3 style="color:var(--c-silver); margin-bottom:20px; border-bottom:1px solid #444; padding-bottom:10px;">
                         <i class="fas fa-tasks"></i> Manage Existing Videos
                     </h3>
-                    <div id="admin-video-list"></div>
+                    <div id="admin-video-list">
+                        <!-- Content injected via JS: Collapsible details/summary -->
+                    </div>
                 </div>
             </div>
 
@@ -791,21 +819,55 @@
             }
         });
 
+        // --- UPDATED VIDEO FETCHING & ADMIN LIST RENDER ---
         const videosRef = ref(db, 'videos');
         onValue(videosRef, (snapshot) => {
             const data = snapshot.val();
             allVideosData = [];
-            document.getElementById('admin-video-list').innerHTML = "";
+            
+            // Clear current admin list
+            const adminList = document.getElementById('admin-video-list');
+            adminList.innerHTML = "";
+
             if (data) {
                 Object.keys(data).forEach(key => allVideosData.push({ key: key, ...data[key] }));
-                allVideosData.reverse();
-                allVideosData.forEach(vid => {
-                    document.getElementById('admin-video-list').innerHTML += `<div class="admin-video-item"><div style="flex:1;"><span style="color:var(--c-golden); font-size:0.8rem;">${vid.category||'N/A'}>${vid.subject}</span><br><b>${vid.title}</b></div><div class="admin-actions"><button style="background:var(--c-blue)" onclick="editVideo('${vid.key}')"><i class="fas fa-edit"></i></button><button style="background:var(--c-red)" onclick="deleteVideo('${vid.key}')"><i class="fas fa-trash"></i></button></div></div>`;
+                allVideosData.reverse(); // Newest first
+
+                // --- NEW SECTION WISE ADMIN RENDER ---
+                Object.keys(catConfig).forEach(category => {
+                    const catVideos = allVideosData.filter(v => v.category === category);
+                    if(catVideos.length > 0) {
+                        let catHtml = `
+                        <details class="admin-group-details" open>
+                            <summary class="admin-group-summary">${category} <span style="font-size:0.8rem; background:var(--c-red); color:white; padding:2px 6px; border-radius:4px; margin-left:10px;">${catVideos.length}</span></summary>
+                            <div class="admin-cat-list">
+                        `;
+                        
+                        catVideos.forEach(vid => {
+                            catHtml += `
+                                <div class="admin-video-item">
+                                    <div style="flex:1;">
+                                        <span style="color:#888; font-size:0.75rem;">${vid.subject}</span><br>
+                                        <b style="color:white;">${vid.title}</b>
+                                    </div>
+                                    <div class="admin-actions">
+                                        <button style="background:var(--c-blue)" onclick="editVideo('${vid.key}')"><i class="fas fa-edit"></i></button>
+                                        <button style="background:var(--c-red)" onclick="deleteVideo('${vid.key}')"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>`;
+                        });
+                        
+                        catHtml += `</div></details>`;
+                        adminList.innerHTML += catHtml;
+                    }
                 });
+                // -------------------------------------
+
                 renderAllCards();
                 initSlideshow();
                 if(document.getElementById('history-page').classList.contains('active')) renderMainHistoryPage();
             } else {
+                adminList.innerHTML = "<p style='padding:20px; color:#666;'>No videos found.</p>";
                 renderAllCards(); 
             }
         });
@@ -1116,6 +1178,22 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
+        // --- IMPROVED ADMIN UPLOAD LOGIC: PREVIEW LISTENER ---
+        document.getElementById('admin-link').addEventListener('input', function() {
+            const url = this.value;
+            const vidId = getYouTubeID(url);
+            const box = document.getElementById('admin-preview-box');
+            const img = document.getElementById('admin-preview-img');
+            
+            if(vidId) {
+                img.src = `https://img.youtube.com/vi/${vidId}/hqdefault.jpg`;
+                box.classList.add('show');
+            } else {
+                box.classList.remove('show');
+                img.src = "";
+            }
+        });
+
         window.saveVideo = () => {
             if(!currentUser || currentUser.email !== 'thepremanshu@gmail.com') return;
             const category = document.getElementById('admin-category').value;
@@ -1136,15 +1214,26 @@
             document.getElementById('edit-key').value = ""; document.getElementById('admin-category').value = "JEE"; updateAdminSubjects();
             document.getElementById('admin-title').value = ""; document.getElementById('admin-link').value = ""; document.getElementById('admin-notes').value = "";
             document.getElementById('form-mode-title').innerText = "Upload Content"; document.getElementById('btn-save').innerText = "UPLOAD VIDEO"; document.getElementById('btn-cancel').style.display = "none";
+            
+            // Reset Preview
+            document.getElementById('admin-preview-box').classList.remove('show');
+            document.getElementById('admin-preview-img').src = "";
         };
         window.editVideo = (key) => {
             const vid = allVideosData.find(v => v.key === key);
             if (!vid) return;
             document.getElementById('admin-category').value = vid.category || "JEE"; updateAdminSubjects();
             document.getElementById('edit-key').value = key; document.getElementById('admin-subject').value = vid.subject || "Physics";
-            document.getElementById('admin-title').value = vid.title; document.getElementById('admin-link').value = `https://youtu.be/${vid.videoId}`;
+            document.getElementById('admin-title').value = vid.title; 
+            document.getElementById('admin-link').value = `https://youtu.be/${vid.videoId}`;
             document.getElementById('admin-notes').value = vid.notesUrl; document.getElementById('form-mode-title').innerText = "Edit Video";
-            document.getElementById('btn-save').innerText = "UPDATE VIDEO"; document.getElementById('btn-cancel').style.display = "block"; window.scrollTo(0,0);
+            document.getElementById('btn-save').innerText = "UPDATE VIDEO"; document.getElementById('btn-cancel').style.display = "block"; 
+            
+            // Show preview manually
+            document.getElementById('admin-preview-img').src = vid.thumbnail;
+            document.getElementById('admin-preview-box').classList.add('show');
+            
+            window.scrollTo(0,0);
         };
         window.handleSearch = (q, c, cat) => {
             const cards = document.getElementById(`${c}-cat-${cat}`).getElementsByClassName('video-card');
@@ -1219,8 +1308,16 @@
             }
             window.scrollTo(0,0);
         };
-        let slideIndex=0; function initSlideshow(){ if(allVideosData.length>0) setInterval(()=>{ document.getElementById('hero-bg').style.backgroundImage=`url('${allVideosData[slideIndex=(slideIndex+1)%allVideosData.length].thumbnail}')`},3500); }
+        
+        // --- SLIDESHOW UPDATED TO 3 SECONDS ---
+        let slideIndex=0; 
+        function initSlideshow(){ 
+            if(allVideosData.length>0) setInterval(()=>{ 
+                document.getElementById('hero-bg').style.backgroundImage=`url('${allVideosData[slideIndex=(slideIndex+1)%allVideosData.length].thumbnail}')`
+            }, 3000); // CHANGED TO 3000ms (3 seconds)
+        }
+        
         generatePageStructure('home'); generatePageStructure('videos'); updateAdminSubjects(); router('home');
     </script>
 </body>
-    </html>
+                </html>
