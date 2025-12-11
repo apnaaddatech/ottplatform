@@ -176,6 +176,22 @@
             
             /* Show Fullscreen button on mobile */
             .custom-fs-btn { display: flex; align-items: center; gap: 5px; }
+            
+            /* --- FIX: HIDE PROFILE CLOSE BUTTON ON MOBILE --- */
+            .profile-header .fa-times { display: none !important; }
+            
+            /* Make profile feel more like a page on mobile */
+            .profile-wrapper { 
+                width: 100%; 
+                height: calc(100vh - 70px); 
+                margin-bottom: 70px; 
+                border-radius: 0;
+                border: none;
+            }
+            .video-modal#profile-modal {
+                align-items: flex-end; /* Push to bottom near nav */
+                background: #000;
+            }
         }
 
         /* --- Sections --- */
@@ -1291,21 +1307,36 @@
         window.handleLogin = () => signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value).then(()=>router('home')).catch(e=>window.showCustomAlert("Error", e.message, "warning"));
         window.handleSignup = () => createUserWithEmailAndPassword(auth, document.getElementById('signup-email').value, document.getElementById('signup-password').value).then(()=>router('home')).catch(e=>window.showCustomAlert("Error", e.message, "warning"));
         
+        // --- UPDATED ROUTER TO CLOSE PROFILE AUTOMATICALLY ON NAVIGATE ---
         window.router = (p) => {
+            // 1. Close the profile modal automatically when navigating
+            closeProfileModal();
+
+            // 2. Standard routing logic
             if(document.getElementById('navbar')) document.getElementById('navbar').classList.remove('active');
-            document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); 
+            
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
             document.getElementById(`${p}-page`).classList.add('active'); 
             
-            // UPDATED ROUTER LOGIC FOR MOBILE NAV
+            // 3. Update Mobile Bottom Navigation Highlighting
             document.querySelectorAll('.mb-nav-item').forEach(b => b.classList.remove('active'));
-            if(p === 'home') document.getElementById('mb-home').classList.add('active');
-            if(p === 'videos') document.getElementById('mb-videos').classList.add('active');
-            if(p === 'login') document.getElementById('mb-profile').classList.add('active');
             
-            // NOTE: History nav logic removed from router highlight as per request
+            if(p === 'home') {
+                document.getElementById('mb-home').classList.add('active');
+            }
+            if(p === 'videos') {
+                document.getElementById('mb-videos').classList.add('active');
+            }
+            // If going to login page, highlight profile icon
+            if(p === 'login') {
+                document.getElementById('mb-profile').classList.add('active');
+            }
+            
+            // 4. Handle History page rendering if accessed via desktop
             if(p === 'history') {
                 renderMainHistoryPage();
             }
+            
             window.scrollTo(0,0);
         };
         
@@ -1314,10 +1345,10 @@
         function initSlideshow(){ 
             if(allVideosData.length>0) setInterval(()=>{ 
                 document.getElementById('hero-bg').style.backgroundImage=`url('${allVideosData[slideIndex=(slideIndex+1)%allVideosData.length].thumbnail}')`
-            }, 3000); // CHANGED TO 3000ms (3 seconds)
+            }, 3000); 
         }
         
         generatePageStructure('home'); generatePageStructure('videos'); updateAdminSubjects(); router('home');
     </script>
 </body>
-                </html>
+</html>
